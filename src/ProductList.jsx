@@ -13,8 +13,8 @@ function ProductList({ onHomeClick }) {
 
   const handleAddToCart = (plant) => {
     dispatch(addItem(plant));
-    setAddedToCart((prev) => ({ ...prev, [plant.name]: true }));
-  }; // <-- only ONE closing brace here; do NOT close the component yet
+    setAddedToCart((prevState) => ({ ...prevState, [plant.name]: true, }));
+  }; 
 
   const plantsArray = [
     {
@@ -154,15 +154,26 @@ function ProductList({ onHomeClick }) {
         <div className="product-grid">
           {plantsArray.map((category, index) => (
             <div key={index}>
-              <h1><div>{category.category}</div></h1>
+              <h1>
+                <div>{category.category}</div>
+                </h1>
               <div className="product-list">
                 {category.plants.map((plant, plantIndex) => (
                   <div className="product-card" key={plantIndex}>
-                    <img className="product-image" src={plant.image} alt={plant.name} />
-                    <div className="product-title">{plant.name}</div>
+                    <img 
+                    className="product-image" 
+                    src={plant.image} 
+                    alt={plant.name} 
+                    />
+                    <div className="product-title">
+                        {plant.name}</div>
                     <div className="product-description">{plant.description}</div>
                     <div className="product-cost">{plant.cost}</div>
-                    <button className="product-button" onClick={() => handleAddToCart(plant)}>
+                    <button 
+                    className="product-button" 
+                    onClick={() => handleAddToCart(plant)}
+                    disabled={addedToCart[plant.name]}
+                    >
                       {addedToCart[plant.name] ? 'Added!' : 'Add to Cart'}
                     </button>
                   </div>
