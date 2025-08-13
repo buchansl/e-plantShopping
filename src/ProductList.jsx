@@ -3,8 +3,7 @@ import './ProductList.css';
 import CartItem from './CartItem';
 import { useDispatch } from 'react-redux';
 import { addItem } from './CartSlice';
-import { removeItem } from './CartSlice';
-import { updateQuantity } from './CartSlice';
+import { useSelector } from 'react-redux';
 
 function ProductList({ onHomeClick, onContinueShopping }) {
   const dispatch = useDispatch();
@@ -13,20 +12,17 @@ function ProductList({ onHomeClick, onContinueShopping }) {
   const [showPlants, setShowPlants] = useState(false);
   const [addedToCart, setAddedToCart] = useState({});
   const cartItems = useSelector(
-    state => state.cart.items);
-   const totalQuantity = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  
-  
+    state => state.cart.items) ?? [];
+   const totalQuantity = useSelector(s =>
+  (s.cart.items ?? []).reduce((sum, i) => sum + (i.quantity || 0), 0)
+);
 
   const handleAddToCart = (plant) => {
     dispatch(addItem(plant));
-   // setAddedToCart((prevState) => ({ ...prevState, [plant.name]: true, }));
+   setAddedToCart(prev => ({ ...prev, [plant.name]: true }));
   }; 
   
-  const calculateTotalQuantity = () => {
-   dispatch(addItem(product));
-   return cartItems ? cartItems.reduce((total, item) => total + item.quantity, 0) : 0;
-     };
+ 
   const plantsArray = [
     {
       category: "Air Purifying Plants",
@@ -110,7 +106,7 @@ function ProductList({ onHomeClick, onContinueShopping }) {
 
   const handleHomeClick = (e) => {
     e.preventDefault();
-    onHomeClick();
+    onHomeClick?.();
   };
 
   const handleCartClick = (e) => {
@@ -127,6 +123,7 @@ function ProductList({ onHomeClick, onContinueShopping }) {
   const handleContinueShopping = (e) => {
     e.preventDefault();
     setShowCart(false);
+    onContinueShopping?.(e);
   };
 
   return (
@@ -145,22 +142,32 @@ function ProductList({ onHomeClick, onContinueShopping }) {
         </div>
 
         <div style={styleObjUl}>
-          <div><a href="#" onClick={handlePlantsClick} style={styleA}>Plants</a></div>
-          <div>
-            <a href="#" onClick={handleCartClick} style={styleA}>
-              <h1 className='cart'>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
-                  <rect width="156" height="156" fill="none"></rect>
-                  <circle cx="80" cy="216" r="12"></circle>
-                  <circle cx="184" cy="216" r="12"></circle>
-                  <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" id="mainIconPathAttribute"></path>
-                </svg>
-             
-              </h1>
-            </a>
-          </div>
-        </div>
-      </div>
+  <div>
+    <a href="#" onClick={handlePlantsClick} style={styleA}>Plants</a>
+  </div>
+
+  <div>
+    <a href="#" onClick={handleCartClick} style={styleA}>
+      {/* wrapper sized to the SVG, provides positioning context */}
+      <span className="cart-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" height="68" width="68">
+          <rect width="156" height="156" fill="none"></rect>
+          <circle cx="80" cy="216" r="12"></circle>
+          <circle cx="184" cy="216" r="12"></circle>
+          <path
+            d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8"
+            fill="none" stroke="#faf9f9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+          />
+        </svg>
+
+        {totalQuantity > 0 && (
+          <span className="cart-badge">{totalQuantity}</span>
+        )}
+      </span>
+    </a>
+  </div>
+</div>
+</div>
 
       {!showCart ? (
         <div className="product-grid">
@@ -198,7 +205,7 @@ function ProductList({ onHomeClick, onContinueShopping }) {
         <CartItem onContinueShopping={handleContinueShopping} />
       )}
     </div>
-  );
-}
 
+    );
+}
 export default ProductList;

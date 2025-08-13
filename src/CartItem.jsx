@@ -1,19 +1,18 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity, addItem } from './CartSlice';
+import { removeItem, updateQuantity} from './CartSlice';
 import './CartItem.css';
 
 const CartItem = ({ onContinueShopping }) => {
  const cartItems = useSelector(state => state.cart.items);
   const dispatch = useDispatch(); 
+    const toNumber = (cost) =>
+    typeof cost === 'number' ? cost : parseFloat(String(cost).replace(/^\$/, '') || '0');
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-    return cart.reduce((total, item) => {
-    // remove "$" if present and convert to number
-    const price = parseFloat(item.cost.replace('$', ''));
-    return total + price * (item.quantity || 1);
-  }, 0).toFixed(2); // returns string with 2 decimal places
- 
+    return cartItems
+    .reduce((total, item) => total + toNumber(item.cost) * (item.quantity || 1), 0)
+      .toFixed(2);
   };
 
   const handleContinueShopping = (e) => {
@@ -24,7 +23,9 @@ const CartItem = ({ onContinueShopping }) => {
   //setShowCart(false); // Show the plant listing page again
   };
 
-
+const handleCheckoutShopping = (e) => {
+  alert('Functionality to be added for future reference');
+};
 
 
 const handleIncrement = (item) => {
@@ -42,27 +43,28 @@ const handleDecrement = (item) => {
     }));
   } else {
     // quantity would drop to 0 → remove it from the cart
-    dispatch(removeItem({ name: item.name })); // or { id: item.id }
+    dispatch(removeItem(item.name )); // or { id: item.id }
   }
 
 };
 // Remove an item completely from the cart
 const handleRemove = (item) => {
-  dispatch(removeItem({ name: item.name })); // or { id: item.id } if using IDs
+  dispatch(removeItem(item.name )); // or { id: item.id } if using IDs
 };
 
 // Calculate the subtotal for one cart item
 const calculateTotalCost = (item) => {
-  const unitPrice = parseFloat(item.cost.substring(1)); // remove "$" and parse number
-  return (unitPrice * item.quantity).toFixed(2);
-};
+  
+  return (toNumber(item.cost) * item.quantity).toFixed(2);
+  };
+
 
 
   return (
     <div className="cart-container">
       <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
       <div>
-        {cart.map(item => (
+        {cartItems.map(item => (
           <div className="cart-item" key={item.name}>
             <img className="cart-item-image" src={item.image} alt={item.name} />
             <div className="cart-item-details">
@@ -83,7 +85,7 @@ const calculateTotalCost = (item) => {
       <div className="continue_shopping_btn">
         <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
         <br />
-        <button className="get-started-button1">Checkout</button>
+        <button className="get-started-button1" onClick={(e) => handleCheckoutShopping(e)}>Checkout</button>
       </div>
     </div>
   );
