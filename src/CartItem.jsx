@@ -6,31 +6,58 @@ import './CartItem.css';
 const CartItem = ({ onContinueShopping }) => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
-
+ 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
+    return cart.reduce((total, item) => {
+    // remove "$" if present and convert to number
+    const price = parseFloat(item.cost.replace('$', ''));
+    return total + price * (item.quantity || 1);
+  }, 0).toFixed(2); // returns string with 2 decimal places
  
   };
 
   const handleContinueShopping = (e) => {
-   
+    e.preventDefault();
+  if (typeof onContinueShopping === 'function') {
+    onContinueShopping(e); // Notify parent
+  }
+  //setShowCart(false); // Show the plant listing page again
   };
 
 
 
-  const handleIncrement = (item) => {
-  };
 
-  const handleDecrement = (item) => {
-   
-  };
+const handleIncrement = (item) => {
+  dispatch(updateQuantity({
+    name: item.name,                 // or item.id if you have one
+    quantity: item.quantity + 1
+  }));
+};
 
-  const handleRemove = (item) => {
-  };
+const handleDecrement = (item) => {
+  if (item.quantity > 1) {
+    dispatch(updateQuantity({
+      name: item.name,               // or item.id
+      quantity: item.quantity - 1
+    }));
+  } else {
+    // quantity would drop to 0 → remove it from the cart
+    dispatch(removeItem({ name: item.name })); // or { id: item.id }
+  }
 
-  // Calculate total cost based on quantity for an item
-  const calculateTotalCost = (item) => {
-  };
+};
+// Remove an item completely from the cart
+const handleRemove = (item) => {
+  dispatch(removeItem({ name: item.name })); // or { id: item.id } if using IDs
+};
+
+// Calculate the subtotal for one cart item
+const calculateTotalCost = (item) => {
+  const unitPrice = parseFloat(item.cost.substring(1)); // remove "$" and parse number
+  return (unitPrice * item.quantity).toFixed(2);
+};
+
 
   return (
     <div className="cart-container">
